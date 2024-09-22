@@ -1,0 +1,36 @@
+# Ignore build artifacts
+/build/
+/dist/
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/nbactions.xml
+/nb-configuration.xml
+
+# Ignore NetBeans specific files
+/nbproject/private/
+/nbproject/Makefile-*.mk
+/nbproject/Package-*.mk
+
+# Ignore backup files
+*.bak
+*.orig
+
+# Ignore log files
+*.log
+
+# Ignore compiled class files
+*.class
+
+# Ignore package files
+*.jar
+*.war
+*.ear
+
+# Ignore IntelliJ IDEA files (if project is opened with IntelliJ IDEA)
+/.idea/
+/*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
