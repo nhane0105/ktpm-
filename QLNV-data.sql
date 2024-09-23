@@ -121,7 +121,8 @@ VALUES
 ('EM029', 'Hoàng Thị Hằng', '1976-04-04', '0832156406', 'Nữ', 'Kinh', 'Phật Giáo', 'Việt Nam', 'PO003', 'SP017', 'DE006', 'DP005', 'Chính Thức', '1', '0'),
 ('EM030', 'Trịnh Văn Đông', '1970-06-08', '0832156407', 'Nam', 'Kinh', 'Không', 'Việt Nam', 'PO001', 'SP021', 'DE006', 'DP005', 'Chính Thức', '1', '0'),
 ('EM031', 'Võ Văn Hiếu', '1976-05-14', '0832156408', 'Nam', 'Kinh', 'Không', 'Việt Nam', 'PO005', 'SP021', 'DE007', 'DP007', 'Chính Thức', '1', '0'),
-('ADM001', 'Trần Đức Hiển', '2004-09-23', '0123456789', 'Nam', 'Kinh', 'Phật Giáo', 'Việt Nam', 'PO001', 'SP005', 'DE004', 'DP007', 'Chính Thức', '1', '0');
+('ADM001', 'Trần Đức Hiển', '2004-09-23', '0123456789', 'Nam', 'Kinh', 'Phật Giáo', 'Việt Nam', 'PO001', 'SP005', 'DE004', 'DP007', 'Chính Thức', '1', '0'),
+('DIR001', 'director', '2004-09-23', '0123456789', 'Nam', 'Kinh', 'Phật Giáo', 'Việt Nam', 'PO005', 'SP003', 'DE004', 'DP004', 'Chính Thức', '1', '0');
 
 INSERT INTO [QLNV].[dbo].[Projects] ([projectId], [projectName], [departmentId], [beginAt], [completedAt], [place], [deleteStatus])
 VALUES 
@@ -162,7 +163,8 @@ VALUES
 ('EM029', 'hoangthihang', '123456', 'hoangthihang@example.com', 'test-avatar3.png', 'employee', '1', '0'),
 ('EM030', 'trinhvandong', '123456', 'trinhvandong@example.com', 'test-avatar3.png', 'employee', '1', '0'),
 ('EM031', 'vovanhieu', '123456', 'vovanhieu@example.com', 'test-avatar3.png', 'employee', '1', '0'),
-('ADM001', 'admin', 'admin', 'admin@example.com', 'test-avatar.png', 'admin', '1', '0');
+('ADM001', 'admin', 'admin', 'admin@example.com', 'test-avatar.png', 'admin', '1', '0'),
+('DIR001', 'director', '123', 'director@example.com', 'test-avatar.png', 'employee', '1', '0');
 
 INSERT INTO [QLNV].[dbo].[Assignments] ([employeeId], [projectId], [deleteStatus])
 VALUES 
