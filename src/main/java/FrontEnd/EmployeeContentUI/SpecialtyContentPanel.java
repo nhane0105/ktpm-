@@ -92,10 +92,16 @@ public class SpecialtyContentPanel extends javax.swing.JPanel
             JOptionPane.showMessageDialog(null, "Tên chuyên môn không thể chứa số !", "Warning",
                     JOptionPane.WARNING_MESSAGE);
             return null;
-        }
+        } 
 
         try {
             specialtyBaseSalary = Integer.parseInt(specialtyBaseSalaryTextField.getText());
+            if (specialtyBaseSalary <= 0) {
+                // Hiển thị hộp thoại cảnh báo
+                JOptionPane.showMessageDialog(null, "Lương cứng phải là số nguyên dương lớn hơn 0!", "Warning",
+                        JOptionPane.WARNING_MESSAGE);
+                return null;
+            }
         } catch (NumberFormatException e) {
             // Show warning dialog
             JOptionPane.showMessageDialog(null, "Lương cứng không hợp lệ vì không phải là số !", "Warning",

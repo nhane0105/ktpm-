@@ -1,5 +1,6 @@
 FrontEnd\CriticismContentUI\CriticismEmployeeForm.class
 FrontEnd\RewardContentUI\RewardEmployeePanel$5.class
+FrontEnd\DepartmentContentUI\DepartmentForm$2.class
 BackEnd\DegreeManagement\DegreeBUS.class
 FrontEnd\UserInfoContentUI\UserInfoContentPanel$1.class
 BackEnd\SpecialtyManagement\Specialty.class
@@ -40,12 +41,14 @@ FrontEnd\DepartmentContentUI\DepartmentManagementContentPanel$2.class
 FrontEnd\AccountContentUI\AccountForm$4.class
 FrontEnd\ProjectContentUI\AssignmentManagementContentPanel$3.class
 FrontEnd\RewardContentUI\TypeRewardPanel$1.class
+FrontEnd\UserInfoContentUI\UserInfoContentPanel$2.class
 FrontEnd\ProjectContentUI\AssignmentForm.class
 BackEnd\RewardManagement\Reward.class
 FrontEnd\EmployeeContentUI\PositionContentPanel$2.class
 FrontEnd\EmployeeContentUI\UserInformationForm.class
 FrontEnd\DepartmentContentUI\DepartmentForm.class
 FrontEnd\RewardContentUI\RewardEmployeePanel$3.class
+FrontEnd\ProjectContentUI\AssignmentForm$5.class
 FrontEnd\EmployeeContentUI\EmployeeManagementContentPanel$1.class
 BackEnd\SpecialtyManagement\SpecialtyBUS.class
 FrontEnd\CriticismContentUI\CriticismEmployeePanel$5.class
@@ -108,6 +111,7 @@ BackEnd\CriticismManagement\CriticismDAO.class
 FrontEnd\CriticismContentUI\CriticismEmployeePanel$2.class
 BackEnd\EmployeeSalary\EmployeeSalaryBUS.class
 FrontEnd\DepartmentContentUI\AddEmployeeToDepartmentContentPanel$1.class
+FrontEnd\EmployeeContentUI\UserInformationForm$1.class
 FrontEnd\ProjectContentUI\AssignmentManagementContentPanel.class
 FrontEnd\AccountContentUI\AccountManagementContentPanel$2.class
 FrontEnd\App\App.class
