@@ -8,6 +8,7 @@ import FrontEnd.App.App;
 import FrontEnd.Redux.Redux;
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.awt.event.KeyEvent;
+import javax.swing.JOptionPane;
 
 public class LoginUI extends javax.swing.JFrame {
 
@@ -21,7 +22,9 @@ public class LoginUI extends javax.swing.JFrame {
         loginButton.addActionListener((ActionEvent e) -> {
             String email = emailTextField.getText();
             String password = new String(passwordTextField.getPassword());
-         
+            if(password.length() < 3){
+                JOptionPane.showMessageDialog(this, "Mật khẩu phải có 3 kí tự trở lên!");
+            }
             Redux.handleLogin(email, password);
 
             if (Redux.isLoggedIn) {
