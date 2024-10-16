@@ -121,7 +121,10 @@ public class AccountForm extends javax.swing.JFrame implements ActionListener, W
 
     public void handleSubmitForm() {
         formData = getDataFromForm();
-
+        if(formData == null){
+            JOptionPane.showMessageDialog(this, "Thông tin sửa tài khoản không hợp lệ!");
+            return ;
+        }
         int confirmation = JOptionPane.showConfirmDialog(this,
                 "Xác nhận thao tác ?",
                 "XÁC NHẬN ?",
@@ -335,12 +338,15 @@ public class AccountForm extends javax.swing.JFrame implements ActionListener, W
                 selectedValue = "",
                 fileName = avatarLabel.getText(),
                 accountStatus = (String) accountStatusComboBox.getSelectedItem();
-
+        if(password.length() < 3 && confirmPassword.length() < 3){
+            JOptionPane.showMessageDialog(this, "Mật khẩu phải có 3 kí tự trở lên!");
+        }
         Enumeration<AbstractButton> allRadioButton = buttonGroup1.getElements();
         while (allRadioButton.hasMoreElements()) {
             JRadioButton temp = (JRadioButton) allRadioButton.nextElement();
             if (temp.isSelected()) {
                 selectedValue = temp.getName();
+                return null;
             }
         }
         // String qlnv = employeeID + ' ' + employeeName +' '+ password+' ' + email +'
