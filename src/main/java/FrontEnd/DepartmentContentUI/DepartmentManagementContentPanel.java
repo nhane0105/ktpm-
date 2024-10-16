@@ -299,6 +299,8 @@ public class DepartmentManagementContentPanel extends javax.swing.JPanel
         departmentForm.setTitle("CÂP NHẬT PHÒNG BAN");
         departmentForm.setVisible(true);
         departmentForm.showFormWithData(dataList);
+        departmentForm.departmentIDTextField.setEnabled(false);
+        departmentForm.departmentNameTextField.setEnabled(false);
     }
 
     public void deleteTableRow() {

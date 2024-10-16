@@ -143,6 +143,8 @@ public class RewardEmployeePanel extends javax.swing.JPanel
         dataList.addAll(Arrays.asList(selectedRowData));
         rewardEmployeeForm = new RewardEmployeeForm();
         rewardEmployeeForm.setTitle("CẬP NHẬT THÔNG TIN KHEN THƯỞNG CỦA NHÂN VIÊN");
+        rewardEmployeeForm.employeeIDComboBox.setEnabled(false);
+        rewardEmployeeForm.employeeNameTextField.setEnabled(false);
         rewardEmployeeForm.showFormWithData(dataList);
     }
 
