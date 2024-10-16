@@ -142,6 +142,8 @@ public class CriticismEmployeePanel extends javax.swing.JPanel
         dataList.addAll(Arrays.asList(selectedRowData));
         criticismEmployeeForm = new CriticismEmployeeForm();
         criticismEmployeeForm.setTitle("CẬP NHẬT THÔNG TIN KỶ LUẬT CỦA NHÂN VIÊN");
+        criticismEmployeeForm.employeeIDComboBox.setEnabled(false);
+        criticismEmployeeForm.employeeNameTextField.setEnabled(false);
         criticismEmployeeForm.showFormWithData(dataList);
     }
 
