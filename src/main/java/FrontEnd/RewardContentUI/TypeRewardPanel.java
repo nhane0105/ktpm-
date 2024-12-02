@@ -85,7 +85,7 @@ public class TypeRewardPanel extends javax.swing.JPanel
         String typeRewardID = (String) typeRewardIDTextField.getText(),
                 typeRewardName = typeRewardNameTextField.getText();
         int money = Integer.parseInt((String) moneyTextField.getText());
-        if(money < 0) {
+        if(money <= 0 && money > 10000000) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập số tiền lớn hơn 0");
             return  null;
         }

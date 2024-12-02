@@ -89,9 +89,19 @@ public class DepartmentForm extends javax.swing.JFrame
     }
 
     public boolean isFormFilled() {
-        return !(departmentNameTextField.getText().equals("")
+//        return !(departmentNameTextField.getText().equals("")
+//                || ((String) managerIDComboBox.getSelectedItem()).equals("")
+//                || managerNameTextField.getText().equals(""));
+        boolean flag = true;
+        if ((departmentNameTextField.getText().equals("")
                 || ((String) managerIDComboBox.getSelectedItem()).equals("")
-                || managerNameTextField.getText().equals(""));
+                || managerNameTextField.getText().equals(""))) {
+            flag = false;
+        }
+        else if (departmentNameTextField.getText().length() > 20) {
+            flag = false;
+        }
+        return flag;
     }
 
     public ArrayList<Object> getDataFromForm() {
@@ -99,7 +109,6 @@ public class DepartmentForm extends javax.swing.JFrame
                 departmentName = departmentNameTextField.getText(),
                 managerID = (String) managerIDComboBox.getSelectedItem(),
                 managerName = managerNameTextField.getText();
-
         return new ArrayList<>(Arrays.asList(departmentID, departmentName, managerID, managerName));
     }
 
@@ -147,8 +156,11 @@ public class DepartmentForm extends javax.swing.JFrame
             if (isFormFilled()) {
                 handleSubmitForm();
             } else {
-                JOptionPane.showMessageDialog(this, "Hãy nhập thông tin trước!", "CẢNH BÁO",
+                JOptionPane.showMessageDialog(this, "Tên phòng ban không được trống!", "CẢNH BÁO",
                         JOptionPane.INFORMATION_MESSAGE);
+                if (departmentIDTextField.getText().length() > 20) {
+                    JOptionPane.showMessageDialog(this, "Tên phòng ban không được quá 20 kí tự", "Cảnh báo", JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         } else if (e.getSource() == cancelButton) {
             if (isFormFilled()) {
@@ -227,6 +239,7 @@ public class DepartmentForm extends javax.swing.JFrame
 
         departmentIDTextField.setBackground(new java.awt.Color(204, 204, 204));
         departmentIDTextField.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        departmentIDTextField.setEnabled(false);
         departmentIDTextField.setOpaque(true);
         departmentIDTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

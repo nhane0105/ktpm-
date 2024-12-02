@@ -287,6 +287,7 @@ public class DepartmentManagementContentPanel extends javax.swing.JPanel
         departmentForm = new DepartmentForm();
         departmentForm.setTitle("THÊM MỚI PHÒNG BAN");
         departmentForm.setVisible(true);
+        departmentForm.departmentNameTextField.setEnabled(true);
     }
 
     public void updateTableRow() {
@@ -300,7 +301,7 @@ public class DepartmentManagementContentPanel extends javax.swing.JPanel
         departmentForm.setVisible(true);
         departmentForm.showFormWithData(dataList);
         departmentForm.departmentIDTextField.setEnabled(false);
-        departmentForm.departmentNameTextField.setEnabled(false);
+//        departmentForm.departmentNameTextField.setEnabled(false);
     }
 
     public void deleteTableRow() {

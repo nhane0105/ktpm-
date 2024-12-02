@@ -181,7 +181,9 @@ public class AddEmployeeToDepartmentContentPanel extends javax.swing.JPanel
                 departmentManagerName = departmentManagerNameTextField.getText(),
                 employeeID = (String) employeeIDComboBox.getSelectedItem(),
                 employeeName = employeeNameTextField.getText();
-
+//        if (departmentID) {
+//            
+//        }
         return new ArrayList<>(
                 Arrays.asList(departmentID, departmentName, departmentManagerName, employeeID,
                         employeeName));

@@ -39,6 +39,8 @@ public class DepartmentBUS {
         if (ok) {
             departmentList.add(department);
             JOptionPane.showMessageDialog(null, "Thêm mới thành công !", "Thông Báo", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, "Thêm mới thất bại !", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

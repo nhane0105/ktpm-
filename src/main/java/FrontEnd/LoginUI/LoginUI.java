@@ -60,7 +60,6 @@ public class LoginUI extends javax.swing.JFrame {
         loginPanel.setPreferredSize(new java.awt.Dimension(400, 500));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("ĐĂNG NHẬP");
         jLabel1.setToolTipText("");
@@ -69,21 +68,17 @@ public class LoginUI extends javax.swing.JFrame {
         jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
 
         emailPanel.setBackground(new java.awt.Color(255, 255, 255));
-        emailPanel.setForeground(new java.awt.Color(0, 0, 0));
         emailPanel.setName("emailPanel"); // NOI18N
 
         emailLabel.setBackground(new java.awt.Color(255, 255, 255));
         emailLabel.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        emailLabel.setForeground(new java.awt.Color(0, 0, 0));
         emailLabel.setLabelFor(emailTextField);
         emailLabel.setText("EMAIL:");
         emailLabel.setName("emailLabel"); // NOI18N
 
-        emailTextField.setBackground(new java.awt.Color(255, 255, 255));
         emailTextField.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        emailTextField.setForeground(new java.awt.Color(0, 0, 0));
+        emailTextField.setActionCommand("<Not Set>");
         emailTextField.setBorder(null);
-        emailTextField.setCaretColor(new java.awt.Color(0, 0, 0));
         emailTextField.setName("emailTextField"); // NOI18N
 
         javax.swing.GroupLayout emailPanelLayout = new javax.swing.GroupLayout(emailPanel);
@@ -106,21 +101,16 @@ public class LoginUI extends javax.swing.JFrame {
         );
 
         passwordPanel.setBackground(new java.awt.Color(255, 255, 255));
-        passwordPanel.setForeground(new java.awt.Color(0, 0, 0));
         passwordPanel.setName("passwordPanel"); // NOI18N
 
         passwordLabel.setBackground(new java.awt.Color(255, 255, 255));
         passwordLabel.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        passwordLabel.setForeground(new java.awt.Color(0, 0, 0));
         passwordLabel.setLabelFor(passwordTextField);
         passwordLabel.setText("PASSWORD:");
         passwordLabel.setName("passwordLabel"); // NOI18N
 
-        passwordTextField.setBackground(new java.awt.Color(255, 255, 255));
         passwordTextField.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        passwordTextField.setForeground(new java.awt.Color(0, 0, 0));
         passwordTextField.setBorder(null);
-        passwordTextField.setCaretColor(new java.awt.Color(0, 0, 0));
         passwordTextField.setName("passwordTextField"); // NOI18N
 
         javax.swing.GroupLayout passwordPanelLayout = new javax.swing.GroupLayout(passwordPanel);
