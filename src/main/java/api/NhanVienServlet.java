@@ -148,7 +148,7 @@ public class NhanVienServlet extends HttpServlet {
 
         // Kiểm tra các trường dữ liệu hợp lệ
         Map<String, String> errors = validateEmployee(newEmployee);
-        if (!employeeDAO.isPhoneNumberExist(newEmployee.getPhoneNumber())) {
+        if (employeeDAO.isPhoneNumberExist(newEmployee.getPhoneNumber())) {
             errors.put("PhoneNumber", "Phone number existing!");
         }
         if (!errors.isEmpty()) {
