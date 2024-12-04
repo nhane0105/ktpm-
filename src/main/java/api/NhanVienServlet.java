@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import jakarta.servlet.ServletException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -133,22 +135,34 @@ public class NhanVienServlet extends HttpServlet {
                 jsonBody.append(line);
             }
         }
-        
+
         if (jsonBody.toString().isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"message\": \"Request body is empty!\"}");
             return;
         }
 
-        // Log body để kiểm tra
-        System.out.println("Received POST request with body: " + jsonBody.toString());
-
-        // Parse JSON và thêm nhân viên
+        // Parse JSON thành đối tượng Employee
         Gson gson = new Gson();
         Employee newEmployee = gson.fromJson(jsonBody.toString(), Employee.class);
+
+        // Kiểm tra các trường dữ liệu hợp lệ
+        Map<String, String> errors = validateEmployee(newEmployee);
+        if (!employeeDAO.isPhoneNumberExist(newEmployee.getPhoneNumber())) {
+            errors.put("PhoneNumber", "Phone number existing!");
+        }
+        if (!errors.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            String errorResponse = gson.toJson(errors);
+            resp.getWriter().write("{\"message\": \"Validation failed\", \"errors\": " + errorResponse + "}");
+            return;
+        }
+
+        // Gán ID mới cho nhân viên
         String id = employeeBUS.getNextID();
         newEmployee.setId(id);
-        
+
+        // Thêm nhân viên vào cơ sở dữ liệu
         boolean isAdded = employeeDAO.addNewEmployee(newEmployee);
         if (isAdded) {
             // Tạo response JSON với message và data
@@ -157,22 +171,20 @@ public class NhanVienServlet extends HttpServlet {
             responseMap.put("data", newEmployee);
 
             String jsonResponse = gson.toJson(responseMap);
-
-            // Trả về response
             resp.getWriter().write(jsonResponse);
         } else {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().write("{\"message\": \"Failed to add employee\"}");
         }
     }
+
     
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // Thiết lập kiểu trả về là JSON
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        // Đọc dữ liệu JSON từ request body
+        // Đọc body từ request
         StringBuilder jsonBody = new StringBuilder();
         try (BufferedReader reader = req.getReader()) {
             String line;
@@ -180,14 +192,14 @@ public class NhanVienServlet extends HttpServlet {
                 jsonBody.append(line);
             }
         }
-
+        
         if (jsonBody.toString().isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"message\": \"Request body is empty!\"}");
             return;
         }
 
-        // Chuyển đổi JSON thành đối tượng Employee
+        // Parse JSON thành đối tượng Employee
         Gson gson = new Gson();
         Employee employeeToUpdate = gson.fromJson(jsonBody.toString(), Employee.class);
 
@@ -197,30 +209,88 @@ public class NhanVienServlet extends HttpServlet {
             resp.getWriter().write("{\"message\": \"Missing or invalid employee ID\"}");
             return;
         }
+        
+        if (employeeBUS.getEmployeeById(employeeToUpdate.getId()) == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"message\": \"Employee ID Not Found\"}");
+            return;
+        }
+
+        // Kiểm tra dữ liệu hợp lệ
+        Map<String, String> errors = validateEmployee(employeeToUpdate);
+        
+        Employee employee = employeeBUS.getEmployeeById(employeeToUpdate.getId());
+        if (!employee.getPhoneNumber().equals(employeeToUpdate.getPhoneNumber())) {
+            if (!employeeDAO.isPhoneNumberExist(employeeToUpdate.getPhoneNumber())) {
+                errors.put("PhoneNumber", "Phone number existing!");
+            }
+        }
+        
+        if (!errors.isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            String errorResponse = gson.toJson(errors);
+            resp.getWriter().write("{\"message\": \"Validation failed\", \"errors\": " + errorResponse + "}");
+            return;
+        }
 
         // Gọi DAO để cập nhật nhân viên
         boolean isUpdated = employeeDAO.updateEmployee(employeeToUpdate);
 
-        // Tạo phản hồi JSON
-        Map<String, Object> responseMap = new HashMap<>();
+        // Trả kết quả cho client
         if (isUpdated) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+
+            // Tạo response JSON với message và data
+            Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("message", "Employee updated successfully!");
             responseMap.put("data", employeeToUpdate);
-            resp.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            responseMap.put("message", "Failed to update employee");
-            responseMap.put("data", null);
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        }
 
-        // Chuyển đổi map thành JSON và gửi phản hồi
-        String jsonResponse = gson.toJson(responseMap);
-        PrintWriter out = resp.getWriter();
-        out.write(jsonResponse);
-        out.flush();
+            String jsonResponse = gson.toJson(responseMap);
+            resp.getWriter().write(jsonResponse);
+        } else {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"message\": \"Failed to update employee\"}");
+        }
     }
 
 
+
+    private Map<String, String> validateEmployee(Employee employee) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (employee.getFullName() == null || employee.getFullName().trim().isEmpty()) {
+            errors.put("fullName", "Full name is required");
+        }
+
+        if (employee.getGender() == null || (!employee.getGender().equalsIgnoreCase("Nam") && !employee.getGender().equalsIgnoreCase("Nữ"))) {
+            errors.put("gender", "Gender must be 'Nam' or 'Nữ'");
+        }
+
+        if (employee.getBirthDate() == null || employee.getBirthDate().isEmpty()) {
+            errors.put("birthDate", "Birth date is required");
+        } else {
+            try {
+                LocalDate.parse(employee.getBirthDate());
+            } catch (DateTimeParseException e) {
+                errors.put("birthDate", "Birth date is invalid (format: YYYY-MM-DD)");
+            }
+        }
+
+        if (employee.getPhoneNumber() == null || !employee.getPhoneNumber().matches("\\d{10}")) {
+            errors.put("phoneNumber", "Phone number must be 10 digits");
+        }
+
+        if (employee.getDegree() == null || employee.getDegree().getDegreeId() == null || employee.getDegree().getDegreeId().isEmpty()) {
+            errors.put("degree", "Degree ID is required");
+        }
+
+        if (employee.getPosition() == null || employee.getPosition().getPositionId() == null || employee.getPosition().getPositionId().isEmpty()) {
+            errors.put("position", "Position ID is required");
+        }
+
+        // Thêm các kiểm tra khác nếu cần
+        return errors;
+    }
 
 }
 

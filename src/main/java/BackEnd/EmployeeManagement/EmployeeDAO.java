@@ -11,6 +11,8 @@ import BackEnd.DepartmentManagement.Department;
 import BackEnd.DepartmentManagement.DepartmentDAO;
 import BackEnd.PositionManagement.PositionDAO;
 import BackEnd.SpecialtyManagement.SpecialtyDAO;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 public class EmployeeDAO {
 
@@ -252,4 +254,28 @@ public class EmployeeDAO {
         }
         return employeeList;
     }
+    
+    public boolean isPhoneNumberExist(String phoneNumber) {
+        // Kiểm tra xem số điện thoại có tồn tại trong cơ sở dữ liệu hay không
+        String query = "SELECT COUNT(*) FROM Employees WHERE phoneNumber = ?";
+
+        try (Connection conn = dbConnection.getConnection();  // Kết nối cơ sở dữ liệu
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, phoneNumber);  // Gán giá trị cho parameter
+
+            try (ResultSet rs = stmt.executeQuery()) {  // Thực thi truy vấn và lấy kết quả
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;  // Nếu có ít nhất một bản ghi trùng số điện thoại
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();  // Log lỗi nếu có
+        }
+
+        return false;  // Nếu không có bản ghi trùng số điện thoại
+    }
+
+
+
 }
