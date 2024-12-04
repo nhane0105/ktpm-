@@ -54,6 +54,7 @@ BackEnd\SpecialtyManagement\SpecialtyBUS.class
 FrontEnd\CriticismContentUI\CriticismEmployeePanel$5.class
 BackEnd\StatisticsManagement\StatisticsBUS.class
 FrontEnd\EmployeeContentUI\DegreeContentPanel.class
+api\NhanVienServlet.class
 FrontEnd\CriticismContentUI\CriticismEmployeePanel$6.class
 BackEnd\DepartmentManagement\DepartmentDAO.class
 FrontEnd\RewardContentUI\RewardEmployeePanel$4.class
@@ -114,6 +115,7 @@ FrontEnd\DepartmentContentUI\AddEmployeeToDepartmentContentPanel$1.class
 FrontEnd\EmployeeContentUI\UserInformationForm$1.class
 FrontEnd\ProjectContentUI\AssignmentManagementContentPanel.class
 FrontEnd\AccountContentUI\AccountManagementContentPanel$2.class
+api\QLNhanVienServer.class
 FrontEnd\App\App.class
 FrontEnd\RewardContentUI\TypeRewardPanel.class
 BackEnd\AccountManagement\Account.class

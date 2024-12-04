@@ -11,6 +11,7 @@ import FrontEnd.StatisticsContentUI.StatisticsContentPanel;
 import FrontEnd.ProjectContentUI.AssignmentContentPanel;
 import FrontEnd.Redux.Redux;
 import FrontEnd.UserInfoContentUI.UserInfoContentPanel;
+import api.NhanVienServlet;
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -29,6 +30,8 @@ import static javax.swing.JOptionPane.YES_NO_OPTION;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHandler;
 
 public class App extends javax.swing.JFrame implements MouseListener {
 
@@ -679,7 +682,7 @@ public class App extends javax.swing.JFrame implements MouseListener {
 		setLocationRelativeTo(null);
 	}// </editor-fold>//GEN-END:initComponents
 
-	public static void main(String args[]) {
+	public static void main(String args[]) throws Exception {
 		FlatDarkLaf.setup();
 		java.awt.EventQueue.invokeLater(() -> {
 			new App().setVisible(true);

@@ -184,6 +184,14 @@ public class EmployeesRewardsCriticism {
         this.rewardCount = rewardCount;
     }
 
+    public boolean isValidRewardCount(int rewardCount) {
+        boolean flag=false;
+        if (this.rewardCount > 0 && this.rewardCount <= 15) {
+            flag = true;
+        } 
+        return flag;
+    }
+    
     @Override
     public String toString() {
         return "{" +
@@ -199,5 +207,5 @@ public class EmployeesRewardsCriticism {
                 ", createdAt='" + getCreatedAt() + "'" +
                 "}";
     }
-
+    
 }

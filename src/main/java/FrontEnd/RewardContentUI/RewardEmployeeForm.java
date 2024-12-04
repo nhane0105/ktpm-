@@ -30,256 +30,261 @@ import javax.swing.event.ChangeListener;
 
 public class RewardEmployeeForm extends javax.swing.JFrame implements ActionListener, WindowListener {
 
-        String rewardId;
-        ArrayList<Object> formData;
+    String rewardId;
+    ArrayList<Object> formData;
 
-        public RewardEmployeeForm() {
-                initComponents();
+    public RewardEmployeeForm() {
+        initComponents();
 
-                setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        
+        formInit();
+        DatePickerSettings pickerSettingsBegin = new DatePickerSettings();
+        pickerSettingsBegin.setFormatForDatesCommonEra("dd/MM/yyyy");
+        startDatePicker.setSettings(pickerSettingsBegin);
+        startDatePicker.setDateToToday();
 
-                formInit();
-                DatePickerSettings pickerSettingsBegin = new DatePickerSettings();
-                pickerSettingsBegin.setFormatForDatesCommonEra("dd/MM/yyyy");
-                startDatePicker.setSettings(pickerSettingsBegin);
-                startDatePicker.setDateToToday();
+        // Get the default editor associated with the spinner
+        JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) countSpinner.getEditor();
+        countSpinner.setModel(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
 
-                // Get the default editor associated with the spinner
-                JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) countSpinner.getEditor();
-                countSpinner.setModel(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
+        // Access the text field component within the editor
+        JTextField textField = editor.getTextField();
 
-                // Access the text field component within the editor
-                JTextField textField = editor.getTextField();
+        // Set the foreground color (text color) of the text field
+        textField.setForeground(Color.WHITE); // Set your desired color
 
-                // Set the foreground color (text color) of the text field
-                textField.setForeground(Color.WHITE); // Set your desired color
+        countSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int selectedValue = (int) countSpinner.getValue();
+                // Perform actions based on the selected value
+                if (selectedValue == 0) {
+                    // Handle case when selected value is 0
+                    JOptionPane.showMessageDialog(RewardEmployeeForm.this,
+                            "Số lần bằng 0 dữ liệu sẽ chuyển về dạng thích hợp!",
+                            "CẢNH BÁO",
+                            JOptionPane.WARNING_MESSAGE);
+                } else if (selectedValue > 0) {
+                    // Handle case when selected value is greater than 0
+                    int money = Redux.rewardBUS.getRewardById(rewardId).getReward() * selectedValue;
+                    moneyTextField.setText(NumberFormat
+                            .getInstance(new Locale.Builder().setLanguage("de")
+                                    .setRegion("DE").build())
+                            .format(money)
+                            + " VNĐ");
+                }
+            }
+        });
 
-                countSpinner.addChangeListener(new ChangeListener() {
-                        @Override
-                        public void stateChanged(ChangeEvent e) {
-                                int selectedValue = (int) countSpinner.getValue();
-                                // Perform actions based on the selected value
-                                if (selectedValue == 0) {
-                                        // Handle case when selected value is 0
-                                        JOptionPane.showMessageDialog(RewardEmployeeForm.this,
-                                                        "Số lần bằng 0 dữ liệu sẽ chuyển về dạng thích hợp!",
-                                                        "CẢNH BÁO",
-                                                        JOptionPane.WARNING_MESSAGE);
-                                } else if (selectedValue > 0) {
-                                        // Handle case when selected value is greater than 0
-                                        int money = Redux.rewardBUS.getRewardById(rewardId).getReward() * selectedValue;
-                                        moneyTextField.setText(NumberFormat
-                                                        .getInstance(new Locale.Builder().setLanguage("de")
-                                                                        .setRegion("DE").build())
-                                                        .format(money)
-                                                        + " VNĐ");
-                                }
-                        }
-                });
+        confirmButton.addActionListener(this);
+        cancelButton.addActionListener(this);
 
-                confirmButton.addActionListener(this);
-                cancelButton.addActionListener(this);
+        addWindowListener(this);
+    }
 
-                addWindowListener(this);
+    public void formInit() {
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        for (Employee employee : Redux.employeeBUS.getEmployeeList()) {
+            if (!employee.getDeleteStatus()) {
+                model.addElement(employee.getId());
+            }
+        }
+        employeeIDComboBox.setModel(model);
+        employeeIDComboBox.setSelectedIndex(0);
+        employeeNameTextField.setText(
+                Redux.employeeBUS.getEmployeeById((String) employeeIDComboBox.getSelectedItem())
+                        .getFullName());
+
+        if (model.getSize() == 1) {
+            String selectedEmployeeId = (String) model.getElementAt(0);
+            for (Employee employee : Redux.employeeBUS.getEmployeeList()) {
+                if (employee.getId().equalsIgnoreCase(selectedEmployeeId)) {
+                    employeeNameTextField.setText(employee.getFullName());
+                    break; // Break the loop once found
+                }
+            }
         }
 
-        public void formInit() {
-                DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+        employeeIDComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedEmployeeId = (String) employeeIDComboBox.getSelectedItem();
                 for (Employee employee : Redux.employeeBUS.getEmployeeList()) {
-                        if (!employee.getDeleteStatus()) {
-                                model.addElement(employee.getId());
-                        }
+                    if (employee.getId().equalsIgnoreCase(selectedEmployeeId)) {
+                        employeeNameTextField.setText(employee.getFullName());
+                    }
                 }
-                employeeIDComboBox.setModel(model);
-                employeeIDComboBox.setSelectedIndex(0);
-                employeeNameTextField.setText(
-                                Redux.employeeBUS.getEmployeeById((String) employeeIDComboBox.getSelectedItem())
-                                                .getFullName());
+            }
+        });
 
-                if (model.getSize() == 1) {
-                        String selectedEmployeeId = (String) model.getElementAt(0);
-                        for (Employee employee : Redux.employeeBUS.getEmployeeList()) {
-                                if (employee.getId().equalsIgnoreCase(selectedEmployeeId)) {
-                                        employeeNameTextField.setText(employee.getFullName());
-                                        break; // Break the loop once found
-                                }
-                        }
+        DefaultComboBoxModel<String> rewardModel = new DefaultComboBoxModel<>();
+        for (Reward reward : Redux.rewardBUS.getListReward()) {
+            if (!reward.getDeleteStatus()) {
+                rewardModel.addElement(reward.getRewardId());
+            }
+        }
+        rewardIDComboBox.setModel(rewardModel);
+        rewardIDComboBox.setSelectedIndex(0);
+        rewardId = (String) rewardIDComboBox.getSelectedItem();
+        rewardNameTextField.setText(Redux.rewardBUS.getRewardById((String) rewardIDComboBox.getSelectedItem())
+                .getRewardName());
+
+        moneyTextField
+                .setText(NumberFormat.getInstance(new Locale.Builder().setLanguage("de")
+                        .setRegion("DE").build())
+                        .format(Redux.rewardBUS.getRewardById(
+                                (String) rewardIDComboBox.getSelectedItem())
+                                .getReward())
+                        + " VNĐ");
+
+        if (rewardModel.getSize() == 1) {
+            String selectedRewardId = (String) rewardModel.getElementAt(0);
+            for (Reward reward : Redux.rewardBUS.getListReward()) {
+                if (reward.getRewardId().equalsIgnoreCase(selectedRewardId)) {
+                    rewardId = reward.getRewardId();
+                    rewardNameTextField.setText(reward.getRewardName());
+                    break; // Break the loop once found
                 }
+            }
+        }
 
-                employeeIDComboBox.addItemListener(e -> {
-                        if (e.getStateChange() == ItemEvent.SELECTED) {
-                                String selectedEmployeeId = (String) employeeIDComboBox.getSelectedItem();
-                                for (Employee employee : Redux.employeeBUS.getEmployeeList()) {
-                                        if (employee.getId().equalsIgnoreCase(selectedEmployeeId)) {
-                                                employeeNameTextField.setText(employee.getFullName());
-                                        }
-                                }
-                        }
-                });
-
-                DefaultComboBoxModel<String> rewardModel = new DefaultComboBoxModel<>();
+        rewardIDComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedEmployeeId = (String) rewardIDComboBox.getSelectedItem();
                 for (Reward reward : Redux.rewardBUS.getListReward()) {
-                        if (!reward.getDeleteStatus()) {
-                                rewardModel.addElement(reward.getRewardId());
-                        }
-                }
-                rewardIDComboBox.setModel(rewardModel);
-                rewardIDComboBox.setSelectedIndex(0);
-                rewardId = (String) rewardIDComboBox.getSelectedItem();
-                rewardNameTextField.setText(Redux.rewardBUS.getRewardById((String) rewardIDComboBox.getSelectedItem())
-                                .getRewardName());
-
-                moneyTextField
-                                .setText(NumberFormat.getInstance(new Locale.Builder().setLanguage("de")
-                                                .setRegion("DE").build())
-                                                .format(Redux.rewardBUS.getRewardById(
-                                                                (String) rewardIDComboBox.getSelectedItem())
-                                                                .getReward())
-                                                + " VNĐ");
-
-                if (rewardModel.getSize() == 1) {
-                        String selectedRewardId = (String) rewardModel.getElementAt(0);
-                        for (Reward reward : Redux.rewardBUS.getListReward()) {
-                                if (reward.getRewardId().equalsIgnoreCase(selectedRewardId)) {
-                                        rewardId = reward.getRewardId();
-                                        rewardNameTextField.setText(reward.getRewardName());
-                                        break; // Break the loop once found
-                                }
-                        }
-                }
-
-                rewardIDComboBox.addItemListener(e -> {
-                        if (e.getStateChange() == ItemEvent.SELECTED) {
-                                String selectedEmployeeId = (String) rewardIDComboBox.getSelectedItem();
-                                for (Reward reward : Redux.rewardBUS.getListReward()) {
-                                        if (reward.getRewardId().equalsIgnoreCase(selectedEmployeeId)) {
-                                                rewardId = reward.getRewardId();
-                                                rewardNameTextField.setText(reward.getRewardName());
-                                                moneyTextField.setText(NumberFormat
-                                                                .getInstance(new Locale.Builder().setLanguage("de")
-                                                                                .setRegion("DE").build())
-                                                                .format(reward.getReward())
-                                                                + " VNĐ");
-                                        }
-                                }
-                        }
-                });
-        }
-
-        public void showFormWithData(ArrayList<Object> data) {
-                if (data != null) {
-                        employeeIDComboBox.setSelectedItem(data.get(1));
-                        employeeNameTextField.setText((String) data.get(2));
-                        rewardIDComboBox.setSelectedItem(
-                                        Redux.rewardBUS.getRewardByName((String) data.get(3)).getRewardId());
-                        rewardNameTextField.setText((String) data.get(3));
-                        countSpinner.setValue(data.get(4));
-                        moneyTextField.setText(NumberFormat.getInstance(new Locale.Builder().setLanguage("de")
+                    if (reward.getRewardId().equalsIgnoreCase(selectedEmployeeId)) {
+                        rewardId = reward.getRewardId();
+                        rewardNameTextField.setText(reward.getRewardName());
+                        moneyTextField.setText(NumberFormat
+                                .getInstance(new Locale.Builder().setLanguage("de")
                                         .setRegion("DE").build())
-                                        .format(Integer.parseInt((String) data.get(5)))
-                                        + " VNĐ");
-                        startDatePicker.setText((String) data.get(6));
+                                .format(reward.getReward())
+                                + " VNĐ");
+                    }
                 }
+            }
+        });
+    }
+
+    public void showFormWithData(ArrayList<Object> data) {
+        if (data != null) {
+            employeeIDComboBox.setSelectedItem(data.get(1));
+            employeeNameTextField.setText((String) data.get(2));
+            rewardIDComboBox.setSelectedItem(
+                    Redux.rewardBUS.getRewardByName((String) data.get(3)).getRewardId());
+            rewardNameTextField.setText((String) data.get(3));
+            countSpinner.setValue(data.get(4));
+            moneyTextField.setText(NumberFormat.getInstance(new Locale.Builder().setLanguage("de")
+                    .setRegion("DE").build())
+                    .format(Integer.parseInt((String) data.get(5)))
+                    + " VNĐ");
+            startDatePicker.setText((String) data.get(6));
         }
+    }
 
-        public void clearFormData() {
-                employeeIDComboBox.setSelectedItem("");
-                employeeNameTextField.setText("");
-                rewardIDComboBox.setSelectedItem("");
-                rewardNameTextField.setText("");
-                countSpinner.setValue(1);
-                moneyTextField.setText("");
-                startDatePicker.setText("");
+    public void clearFormData() {
+        employeeIDComboBox.setSelectedItem("");
+        employeeNameTextField.setText("");
+        rewardIDComboBox.setSelectedItem("");
+        rewardNameTextField.setText("");
+        countSpinner.setValue(1);
+        moneyTextField.setText("");
+        startDatePicker.setText("");
+    }
+
+    public ArrayList<Object> getDataFormForm() {
+        String employeeID = (String) employeeIDComboBox.getSelectedItem(),
+                employeeName = employeeNameTextField.getText(),
+                rewardId = (String) rewardIDComboBox.getSelectedItem(),
+                rewardName = rewardNameTextField.getText(),
+                startDate = Employee.formatBirthDateToDatabaseType(startDatePicker.getText());
+        int money = Integer.parseInt(moneyTextField.getText().toString().replace(" VNĐ", "").replace(".", "")),
+                rewardCount = (int) countSpinner.getValue();
+        return new ArrayList<>(Arrays.asList(employeeID, employeeName, rewardId, rewardName, rewardCount,
+                startDate, money));
+    }
+
+    public void handleSubmitForm() {
+        formData = getDataFormForm();
+
+        int confirmation = JOptionPane.showConfirmDialog(this,
+                "Bạn có muốn thêm mới dữ liệu khen thưởng nhân viên với ID " + formData.get(0) + " ?",
+                "XÁC NHẬN ?",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirmation == JOptionPane.YES_OPTION) {
+            if (this.getTitle().contains("THÊM MỚI")) {
+                Redux.employeesRewardsCriticismBUS.addEmployeesRewardsCriticism(
+                        new EmployeesRewardsCriticism(
+                                Redux.employeeBUS.getEmployeeById(
+                                        (String) formData.get(0)),
+                                Redux.rewardBUS.getRewardById((String) formData.get(2)),
+                                (int) formData.get(4),
+                                new Criticism(),
+                                0, (String) formData.get(5)));
+            } else {
+                Redux.employeesRewardsCriticismBUS.updateEmployeesRewardsCriticism(
+                        new EmployeesRewardsCriticism(
+                                Redux.employeeBUS.getEmployeeById(
+                                        (String) formData.get(0)),
+                                Redux.rewardBUS.getRewardById((String) formData.get(2)),
+                                (int) formData.get(4),
+                                new Criticism(),
+                                0, (String) formData.get(5)));
+            }
+            Redux.employeesRewardsCriticismBUS.readDB();
+            RewardEmployeePanel.tableInit(Redux.employeesRewardsCriticismBUS.getlistEmployeeRC());
+            dispose();
         }
+    }
 
-        public ArrayList<Object> getDataFormForm() {
-                String employeeID = (String) employeeIDComboBox.getSelectedItem(),
-                                employeeName = employeeNameTextField.getText(),
-                                rewardId = (String) rewardIDComboBox.getSelectedItem(),
-                                rewardName = rewardNameTextField.getText(),
-                                startDate = Employee.formatBirthDateToDatabaseType(startDatePicker.getText());
-                int money = Integer.parseInt(moneyTextField.getText().toString().replace(" VNĐ", "").replace(".", "")),
-                                rewardCount = (int) countSpinner.getValue();
-                return new ArrayList<>(Arrays.asList(employeeID, employeeName, rewardId, rewardName, rewardCount,
-                                startDate, money));
+    public void cancelSubmitForm() {
+
+        int confirmation = JOptionPane.showConfirmDialog(this,
+                "Xác nhận thao tác ?",
+                "HỦY BỎ ?",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirmation == JOptionPane.YES_OPTION) {
+            clearFormData();
+            dispose();
         }
+    }
 
-        public void handleSubmitForm() {
-                formData = getDataFormForm();
+    public boolean isFormFilled() {
+        return !(employeeNameTextField.getText().equals("")
+                || rewardNameTextField.getText().equals("")
+                || startDatePicker.getText().equals("")
+                || ((int) countSpinner.getValue() == 0)
+                || moneyTextField.getText().equals(""));
+    }
 
-                int confirmation = JOptionPane.showConfirmDialog(this,
-                                "Bạn có muốn thêm mới dữ liệu khen thưởng nhân viên với ID " + formData.get(0) + " ?",
-                                "XÁC NHẬN ?",
-                                JOptionPane.YES_NO_OPTION);
-
-                if (confirmation == JOptionPane.YES_OPTION) {
-                        if (this.getTitle().contains("THÊM MỚI")) {
-                                Redux.employeesRewardsCriticismBUS.addEmployeesRewardsCriticism(
-                                                new EmployeesRewardsCriticism(
-                                                                Redux.employeeBUS.getEmployeeById(
-                                                                                (String) formData.get(0)),
-                                                                Redux.rewardBUS.getRewardById((String) formData.get(2)),
-                                                                (int) formData.get(4),
-                                                                new Criticism(),
-                                                                0, (String) formData.get(5)));
-                        } else {
-                                Redux.employeesRewardsCriticismBUS.updateEmployeesRewardsCriticism(
-                                                new EmployeesRewardsCriticism(
-                                                                Redux.employeeBUS.getEmployeeById(
-                                                                                (String) formData.get(0)),
-                                                                Redux.rewardBUS.getRewardById((String) formData.get(2)),
-                                                                (int) formData.get(4),
-                                                                new Criticism(),
-                                                                0, (String) formData.get(5)));
-                        }
-                        Redux.employeesRewardsCriticismBUS.readDB();
-                        RewardEmployeePanel.tableInit(Redux.employeesRewardsCriticismBUS.getlistEmployeeRC());
-                        dispose();
+    public boolean isFormValid() {
+        return ((int) countSpinner.getValue() > 0 && (int) countSpinner.getValue() < 16);
+    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == confirmButton) {
+            if (isFormFilled()) {
+                if (isFormValid()) {
+                    handleSubmitForm();
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Hãy nhập thông tin trước!", "CẢNH BÁO",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else if (e.getSource() == cancelButton) {
+            if (isFormFilled()) {
+                cancelSubmitForm();
+            } else {
+                clearFormData();
+                dispose();
+            }
         }
+    }
 
-        public void cancelSubmitForm() {
-
-                int confirmation = JOptionPane.showConfirmDialog(this,
-                                "Xác nhận thao tác ?",
-                                "HỦY BỎ ?",
-                                JOptionPane.YES_NO_OPTION);
-
-                if (confirmation == JOptionPane.YES_OPTION) {
-                        clearFormData();
-                        dispose();
-                }
-        }
-
-        public boolean isFormFilled() {
-                return !(employeeNameTextField.getText().equals("")
-                                || rewardNameTextField.getText().equals("")
-                                || startDatePicker.getText().equals("")
-                                || ((int) countSpinner.getValue() == 0)
-                                || moneyTextField.getText().equals(""));
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == confirmButton) {
-                        if (isFormFilled()) {
-                                handleSubmitForm();
-                        } else {
-                                JOptionPane.showMessageDialog(this, "Hãy nhập thông tin trước!", "CẢNH BÁO",
-                                                JOptionPane.INFORMATION_MESSAGE);
-                        }
-                } else if (e.getSource() == cancelButton) {
-                        if (isFormFilled()) {
-                                cancelSubmitForm();
-                        } else {
-                                clearFormData();
-                                dispose();
-                        }
-                }
-        }
-
-        @SuppressWarnings("unchecked")
-        // <editor-fold defaultstate="collapsed" desc="Generated
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -305,12 +310,13 @@ public class RewardEmployeeForm extends javax.swing.JFrame implements ActionList
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
+        startDatePicker.setEnabled(false);
         startDatePicker.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         startDatePicker.setName("startDatePicker"); // NOI18N
 
+        employeeNameTextField.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         employeeNameTextField.setBackground(new java.awt.Color(204, 204, 204));
         employeeNameTextField.setEnabled(false);
-        employeeNameTextField.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         employeeNameTextField.setName("employeeNameTextField"); // NOI18N
         employeeNameTextField.setOpaque(true);
 
@@ -362,9 +368,9 @@ public class RewardEmployeeForm extends javax.swing.JFrame implements ActionList
         employeeNameLabel.setName("employeeNameLabel"); // NOI18N
         employeeNameLabel.setOpaque(true);
 
+        rewardNameTextField.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         rewardNameTextField.setBackground(new java.awt.Color(204, 204, 204));
         rewardNameTextField.setEnabled(false);
-        rewardNameTextField.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         rewardNameTextField.setName("rewardNameTextField"); // NOI18N
         rewardNameTextField.setOpaque(true);
 
@@ -396,9 +402,9 @@ public class RewardEmployeeForm extends javax.swing.JFrame implements ActionList
         moneyLabel.setName("moneyLabel"); // NOI18N
         moneyLabel.setOpaque(true);
 
+        moneyTextField.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         moneyTextField.setBackground(new java.awt.Color(204, 204, 204));
         moneyTextField.setEnabled(false);
-        moneyTextField.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         moneyTextField.setName("moneyTextField"); // NOI18N
         moneyTextField.setOpaque(true);
 
@@ -514,37 +520,37 @@ public class RewardEmployeeForm extends javax.swing.JFrame implements ActionList
     private javax.swing.JLabel rewardIDLabel;
     private javax.swing.JLabel rewardNameLabel;
     private javax.swing.JTextField rewardNameTextField;
-    private com.github.lgooddatepicker.components.DatePicker startDatePicker;
+    public static com.github.lgooddatepicker.components.DatePicker startDatePicker;
     private javax.swing.JLabel startDatePickerLabel;
     // End of variables declaration//GEN-END:variables
 
-        @Override
-        public void windowOpened(WindowEvent e) {
-        }
+    @Override
+    public void windowOpened(WindowEvent e) {
+    }
 
-        @Override
-        public void windowClosing(WindowEvent e) {
-        }
+    @Override
+    public void windowClosing(WindowEvent e) {
+    }
 
-        @Override
-        public void windowClosed(WindowEvent e) {
-                clearFormData();
-        }
+    @Override
+    public void windowClosed(WindowEvent e) {
+        clearFormData();
+    }
 
-        @Override
-        public void windowIconified(WindowEvent e) {
-        }
+    @Override
+    public void windowIconified(WindowEvent e) {
+    }
 
-        @Override
-        public void windowDeiconified(WindowEvent e) {
-        }
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+    }
 
-        @Override
-        public void windowActivated(WindowEvent e) {
-        }
+    @Override
+    public void windowActivated(WindowEvent e) {
+    }
 
-        @Override
-        public void windowDeactivated(WindowEvent e) {
-        }
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+    }
 
 }

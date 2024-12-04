@@ -131,6 +131,7 @@ public class RewardEmployeePanel extends javax.swing.JPanel
         rewardEmployeeForm = new RewardEmployeeForm();
         rewardEmployeeForm.setTitle("THÊM MỚI THÔNG TIN KHEN THƯỞNG CỦA NHÂN VIÊN");
         rewardEmployeeForm.setVisible(true);
+//        rewardEmployeeForm.startDatePicker.setEnable(false);
     }
 
     public void updateTableRow() {
