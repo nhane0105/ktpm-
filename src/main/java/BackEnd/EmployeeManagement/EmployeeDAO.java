@@ -65,6 +65,7 @@ public class EmployeeDAO {
 
     public Boolean addNewEmployee(Employee employee) {
         dbConnection = new ConnectDB();
+        System.out.println(dbConnection.checkConnect());
         Boolean ok = false;
         try {
             String query = "INSERT INTO Employees (id, fullName, gender, birthDate, phoneNumber, ethnicGroup, type, religion, degreeId, nation, positionId, departmentId, specialtyId, employStatus, deleteStatus) VALUES ('"
@@ -158,7 +159,7 @@ public class EmployeeDAO {
                         new SpecialtyDAO().getSpecialtyById(specialtyId));
             }
             rs.close();
-        } catch (SQLException ex) {
+        } catch (SQLException ex) { 
             JOptionPane.showMessageDialog(null, "-- ERROR! Lỗi đọc dữ liệu bảng Employees ");
         } finally {
             dbConnection.closeConnect();
@@ -256,8 +257,10 @@ public class EmployeeDAO {
     }
     
     public boolean isPhoneNumberExist(String phoneNumber) {
+        dbConnection = new ConnectDB();        
         // Kiểm tra xem số điện thoại có tồn tại trong cơ sở dữ liệu hay không
         String query = "SELECT COUNT(*) FROM Employees WHERE phoneNumber = ?";
+        
 
         try (Connection conn = dbConnection.getConnection();  // Kết nối cơ sở dữ liệu
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -272,7 +275,7 @@ public class EmployeeDAO {
         } catch (SQLException e) {
             e.printStackTrace();  // Log lỗi nếu có
         }
-
+        dbConnection.closeConnect();
         return false;  // Nếu không có bản ghi trùng số điện thoại
     }
 

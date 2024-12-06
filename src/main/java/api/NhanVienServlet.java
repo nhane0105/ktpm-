@@ -160,6 +160,7 @@ public class NhanVienServlet extends HttpServlet {
 
         // Gán ID mới cho nhân viên
         String id = employeeBUS.getNextID();
+        System.out.println("next id: " + id);
         newEmployee.setId(id);
 
         // Thêm nhân viên vào cơ sở dữ liệu
@@ -221,7 +222,7 @@ public class NhanVienServlet extends HttpServlet {
         
         Employee employee = employeeBUS.getEmployeeById(employeeToUpdate.getId());
         if (!employee.getPhoneNumber().equals(employeeToUpdate.getPhoneNumber())) {
-            if (!employeeDAO.isPhoneNumberExist(employeeToUpdate.getPhoneNumber())) {
+            if (employeeDAO.isPhoneNumberExist(employeeToUpdate.getPhoneNumber())) {
                 errors.put("PhoneNumber", "Phone number existing!");
             }
         }
