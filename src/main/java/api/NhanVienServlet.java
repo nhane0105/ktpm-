@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -185,48 +186,55 @@ public class NhanVienServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        // Đọc body từ request
+        Gson gson = new Gson();
         StringBuilder jsonBody = new StringBuilder();
+
         try (BufferedReader reader = req.getReader()) {
             String line;
             while ((line = reader.readLine()) != null) {
                 jsonBody.append(line);
             }
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"message\": \"Failed to read request body\"}");
+            return;
         }
-        
+
         if (jsonBody.toString().isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"message\": \"Request body is empty!\"}");
             return;
         }
 
-        // Parse JSON thành đối tượng Employee
-        Gson gson = new Gson();
-        Employee employeeToUpdate = gson.fromJson(jsonBody.toString(), Employee.class);
+        Employee employeeToUpdate;
+        try {
+            employeeToUpdate = gson.fromJson(jsonBody.toString(), Employee.class);
+        } catch (JsonSyntaxException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"message\": \"Invalid JSON format\"}");
+            return;
+        }
 
-        // Kiểm tra xem Employee có ID hay không
         if (employeeToUpdate.getId() == null || employeeToUpdate.getId().isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"message\": \"Missing or invalid employee ID\"}");
             return;
         }
-        
-        if (employeeBUS.getEmployeeById(employeeToUpdate.getId()) == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write("{\"message\": \"Employee ID Not Found\"}");
+
+        Employee existingEmployee = employeeBUS.getEmployeeById(employeeToUpdate.getId());
+        if (existingEmployee == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().write("{\"message\": \"Employee not found\"}");
             return;
         }
 
-        // Kiểm tra dữ liệu hợp lệ
         Map<String, String> errors = validateEmployee(employeeToUpdate);
-        
-        Employee employee = employeeBUS.getEmployeeById(employeeToUpdate.getId());
-        if (!employee.getPhoneNumber().equals(employeeToUpdate.getPhoneNumber())) {
+        if (existingEmployee.getPhoneNumber() != null && !existingEmployee.getPhoneNumber().equals(employeeToUpdate.getPhoneNumber())) {
             if (employeeDAO.isPhoneNumberExist(employeeToUpdate.getPhoneNumber())) {
-                errors.put("PhoneNumber", "Phone number existing!");
+                errors.put("PhoneNumber", "Phone number already exists!");
             }
         }
-        
+
         if (!errors.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             String errorResponse = gson.toJson(errors);
@@ -234,26 +242,69 @@ public class NhanVienServlet extends HttpServlet {
             return;
         }
 
-        // Gọi DAO để cập nhật nhân viên
-        boolean isUpdated = employeeDAO.updateEmployee(employeeToUpdate);
+        try {
+            boolean isUpdated = employeeDAO.updateEmployee(employeeToUpdate);
 
-        // Trả kết quả cho client
-        if (isUpdated) {
+            if (isUpdated) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                Map<String, Object> responseMap = new HashMap<>();
+                responseMap.put("message", "Employee updated successfully!");
+                responseMap.put("data", employeeToUpdate);
+                String jsonResponse = gson.toJson(responseMap);
+                resp.getWriter().write(jsonResponse);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().write("{\"message\": \"Failed to update employee\"}");
+            }
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"message\": \"An unexpected error occurred\"}");
+        }
+    }
+    
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        // Lấy mã nhân viên từ URL
+        String pathInfo = req.getPathInfo(); // Ví dụ: "/EM045"
+        String employeeId = null;
+        if (pathInfo != null && pathInfo.startsWith("/")) {
+            employeeId = pathInfo.substring(1); // Bỏ dấu "/"
+        }
+
+        // Kiểm tra mã nhân viên
+        if (employeeId == null || employeeId.trim().isEmpty()) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"message\": \"Employee ID cannot be null\"}");
+            return;
+        }
+        Employee employee = employeeBUS.getEmployeeById(employeeId);
+        // Kiểm tra xem nhân viên có tồn tại không
+        if (employee == null) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().write("{\"message\": \"Employee ID not found\"}");
+            return;
+        }
+
+        // Thực hiện xóa nhân viên
+        boolean isDeleted = employeeBUS.deleteEmployeeFromDB(employee);
+        if (isDeleted) {
             resp.setStatus(HttpServletResponse.SC_OK);
-
-            // Tạo response JSON với message và data
-            Map<String, Object> responseMap = new HashMap<>();
-            responseMap.put("message", "Employee updated successfully!");
-            responseMap.put("data", employeeToUpdate);
-
-            String jsonResponse = gson.toJson(responseMap);
-            resp.getWriter().write(jsonResponse);
+            resp.getWriter().write("{\"message\": \"Employee deleted successfully\"}");
         } else {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"message\": \"Failed to update employee\"}");
+            resp.getWriter().write("{\"message\": \"Failed to delete employee\"}");
         }
     }
 
+
+    // Hàm kiểm tra định dạng mã nhân viên (tùy chỉnh theo yêu cầu)
+    private boolean isValidEmployeeId(String employeeId) {
+        // Ví dụ: mã nhân viên phải là số hoặc theo regex cụ thể
+        return employeeId.matches("\\d+"); // Chỉ chứa số
+    }
 
 
     private Map<String, String> validateEmployee(Employee employee) {

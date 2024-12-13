@@ -279,6 +279,22 @@ public class EmployeeDAO {
         return false;  // Nếu không có bản ghi trùng số điện thoại
     }
 
+    public boolean deleteEmployeeById(String employeeId) {
+        dbConnection = new ConnectDB();        
 
+        String query = "DELETE FROM employees WHERE id = ?";
 
+        try (Connection conn = dbConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, employeeId);
+
+            // Sử dụng executeUpdate để thực thi DELETE
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // Trả về true nếu xóa thành công
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Trả về false nếu xảy ra lỗi
+    }
 }

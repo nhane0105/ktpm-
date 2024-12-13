@@ -132,4 +132,13 @@ public class EmployeeBUS {
     public ArrayList<Employee> getEmployeeSearchResult() {
         return employeeSearchResult;
     }
+    
+    public boolean deleteEmployeeFromDB(Employee employee) {
+        Boolean ok = employeeDAO.deleteEmployeeById(employee.getId());
+
+        if (ok) {
+            this.readDB();
+        }
+        return ok;
+    }
 }
